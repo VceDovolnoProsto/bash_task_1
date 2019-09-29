@@ -1,27 +1,26 @@
 #!/bin/bash
-function create_file_xls {
-for file in "$1"/*
+function create_file_xls {                            # функция для обработки файлов в директории
+for file in "$1"/*                                    # цикл для перебора файлов
 do 
-this_file="${file##*/}"
-if [ -d "$file" ]
+this_file="${file##*/}"                               # выделение имени файла из абсолютного пути
+if [ -d "$file" ]                                     # проверка - является ли файл директорией
 then
-create_file_xls "$file"
+create_file_xls "$file"                               # рекурсивный вызов функции для обработки файлов во вложенной директории
 else
 
-name="${this_file%.[^.]*}" 
-extension="${this_file##*.}"
-data_of_change=$(date +%Y-%m-%d -r "$file")
-size=$(wc -c <"$file" | awk '{print $1}')
-size="$size"
-duration=$(mediainfo --Inform="General;%Duration%" $file)
-let "duration_sec=duration/1000" 
-echo -e "$name \t $extension \t $data_of_change \t $size "B" \t $duration_sec" >> result.xls
+name="${this_file%.[^.]*}"                            # выделение имени файла с помощью регулярного выражения
+extension="${this_file##*.}"                          # выделение расширения файла
+data_of_change=$(date +%Y-%m-%d -r "$file")           # дата последнего изменения с помощью команды data
+size="$(wc -c <"$file" | awk '{print $1}')"                                                    # получение размера файла в байтах (выделение первого аргумента команды wc -c с помощью awk)
+duration=$(mediainfo --Inform="General;%Duration%" $file)                                      # получение длины видео с помощью библиотеки mediainfo в мс
+let "duration_sec=duration/1000"                                                               # получение длины видео в с 
+echo -e "$name \t $extension \t $data_of_change \t $size "B" \t $duration_sec" >> result.xls   # дозапись строки вывода в файл .xls
 
 fi
 done
 }
- 
-echo "Enter the name of the directory"
-read div
-create_file_xls "$div"
-echo "End of the script"
+rm /home/vladislav/result.xls	                       	# удаление выходного файла, если такой существует
+echo "Enter the name of the directory"                # вывод в командную строку предложения о вводе нужной папки для перебора
+read div                                              # считывание данных из командной строки
+create_file_xls "$div"                                # вызов функции для обработки файлов в директории
+echo "End of the script"       
