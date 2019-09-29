@@ -10,6 +10,10 @@ else
 
 name="${this_file%.[^.]*}"                            # выделение имени файла с помощью регулярного выражения
 extension="${this_file##*.}"                          # выделение расширения файла
+if [[ -z "$name" && -n "$extension" ]]; then          # проверка для файлов без имени
+name=".$extension"
+extension=""
+fi
 data_of_change=$(date +%Y-%m-%d -r "$file")           # дата последнего изменения с помощью команды data
 size="$(wc -c <"$file" | awk '{print $1}')"                                                    # получение размера файла в байтах (выделение первого аргумента команды wc -c с помощью awk)
 duration=$(mediainfo --Inform="General;%Duration%" $file)                                      # получение длины видео с помощью библиотеки mediainfo в мс
